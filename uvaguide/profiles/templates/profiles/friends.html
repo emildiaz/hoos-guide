@@ -1,0 +1,80 @@
+{% extends 'uvaguide/base.html' %}
+
+{% block content %}
+{% load socialaccount %}
+{% if user.is_authenticated %}
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+  </head>
+
+  <p>&emsp;</p>
+  <p>&emsp;</p>
+  <p>&emsp;</p>
+  <h1  class = "text-center" style="vertical-align:middle;font-size: 50px;">Friends</h1>
+
+    
+  
+
+
+<div class="container searchBar" style="text-align: center;">
+  <form action="{% url 'profiles:friends' %}" method="get">
+    <input name="search" placeholder="Search friends..." type="text" size="50">
+    <button type="submit" id="type3" class="btn btn-primary btn-sm">Search</button>
+  </form>
+</div>
+
+<div class="container my-3 p-3 bg-body shadow-sm friend_list">
+  <h6 class="border-bottom pb-2 mb-0">Results</h6>
+  {% if profiles_list %}
+  {% for friend in profiles_list %}
+  <div class="d-flex text-muted pt-3">
+    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32px" height="32px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#E57200"/><text x="50%" y="50%" fill="#E57200" dy=".3em">32x32</text></svg>
+    <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+      <div class="d-flex justify-content-between">
+        {% if friend in friends %}
+        <strong class="text-gray-dark">{{ friend.username }}</strong>
+        <p>Already Friends!</p>
+        {% elif friend in sent_requests %}
+        <strong class="text-gray-dark">{{ friend.username }}</strong>
+        <p>Friend Request Sent!</p>
+        {% elif friend in received_requests %}
+        <form action="{% url 'profiles:send_request' friend.id %}">
+          <strong class="text-gray-dark">{{ friend.username }} </strong>
+          <input type="submit" value="Add Friend">
+        </form>
+        <p>Friend Request Received!</p>
+        {% else %}
+        <form action="{% url 'profiles:send_request' friend.id %}">
+          <strong class="text-gray-dark">{{ friend.username }} </strong>
+          <input type="submit" value="Add Friend">
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <h1>Friend does not exist!</h1>
+  {% endif %}
+  <small class="d-block text-end mt-3">
+  </small>
+</div>
+<p>&emsp;</p>
+<p>&emsp;</p>
+ 
+{% else %}
+{% endif %}
+{% endblock %}

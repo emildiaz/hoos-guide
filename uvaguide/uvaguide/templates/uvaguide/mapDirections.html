@@ -1,0 +1,80 @@
+{% extends 'uvaguide/base.html' %}
+{% block content %}
+<!-- load custome css styles -->
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'uvaguide/css/custom-style.css' %}" />
+<p>&emsp;</p>
+<div class="container searchBar" style="padding-bottom: 25px;">
+    <text>Starting Location: </text><input id="autocomplete" placeholder={{ start }} type="text" size="50">
+    <text>Ending Location: </text><input id="autocomplete2" placeholder={{ end }} type="text" size="50">
+</div>
+<div class="container map" style="padding-bottom: 25px">
+    <iframe id="map" height=100% width=100% style="border:0" loading="lazy" allowfullscreen src={{ location }}>
+    </iframe> -->
+</div>
+
+
+<!-- Code adapted from https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-->
+<script>
+    let autocomplete;
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete'),
+            {
+                types: ['establishment'],
+                componenetRestrictions: { 'country': ['AU'] },
+                fields: ['place_id', 'geometry', 'name']
+            });
+        autocomplete.addListener('place_changed', onStartChanged);
+        initAutocomplete2();
+    }
+
+    let autocomplete2;
+    function initAutocomplete2() {
+        autocomplete2 = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete2'),
+            {
+                types: ['establishment'],
+                componenetRestrictions: { 'country': ['AU'] },
+                fields: ['place_id', 'geometry', 'name']
+            });
+        autocomplete2.addListener('place_changed', onEndChanged);
+    }
+
+    function onStartChanged() {
+        var newStart = autocomplete.getPlace();
+        var startName;
+        var endName = document.getElementById('autocomplete2').placeholder;
+        if (!newStart.geometry) {
+        }
+        else {
+            endName = endName.replaceAll(' ', '+');
+            endName = endName.replaceAll('&', 'and');
+            endName = endName.replaceAll("'", "");
+            startName = newStart.name.replaceAll(' ', '+');
+            startName = startName.replaceAll('&', 'and');
+            startName = startName.replaceAll("'", "");
+            location = "/map/" + startName + "/" + endName;
+        }
+    }
+    function onEndChanged() {
+        var newEnd = autocomplete2.getPlace();
+        var startName = document.getElementById('autocomplete').placeholder;
+        if (!newEnd.geometry) {
+        }
+        else {
+            endName = newEnd.name.replaceAll(' ', '+');
+            endName = endName.replaceAll('&', 'and');
+            endName = endName.replaceAll("'", "");
+            startName = startName.replaceAll(' ', '+');
+            startName = startName.replaceAll('&', 'and');
+            startName = startName.replaceAll("'", "");
+            location = "/map/" + startName + "/" + endName;
+        }
+    }
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdaz10ER7OvsL15_iMY2hozh7-KEsukb4&libraries=places&callback=initAutocomplete"
+    async defer>
+    </script>
+{% endblock %}

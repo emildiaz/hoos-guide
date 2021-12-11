@@ -1,0 +1,154 @@
+{% extends 'uvaguide/base.html' %}
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'uvaguide/css/custom-style.css' %}">
+
+<div class="container main">
+    <div class="container box1" style>
+        <div class="row" id="general_info">
+            <div class="col-md-9" style="display: inline; text-align: left;" id="title">
+                <h1 style="display: inline">{{ place.name }}
+                    <button type="button" id="type2" onclick='goTo()' class="btn" style="font-family: Arial, Helvetica, sans-serif;">See Location</button>
+                </h1>
+            </div>
+            <div class="col-md-3 detail_like">
+                <p style="display: inline; font-size: 25px;" align="right"> {{ place.num_likes }} like(s) </p>
+                <form style="display: inline;" action="{% url 'maps:like' place.id %}" method='POST'>
+                    {% csrf_token %}
+                    <button id="type3" type='submit', name='place_id', value='{{ place.id }}', class='btn'>
+                        Like
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row" id="contact">
+            <p> Address: {{ place.address }} </p>
+        </div>
+        <div class="row" id="directions_to_from">
+            <div class="col-md-6">
+                <p>
+                    <text>Directions to here from: </text><input id="autocomplete" placeholder="Type place here" type="text"size="30">
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <text>Directions from here to: </text><input id="autocomplete2" placeholder="Type place here" type="text"size="30">
+                </p>
+            </div>
+        </div>
+
+        <div class="row" id="image">
+            <div class="col-lg-5">
+                {% if place.image != "" %}
+                <img style="float: left; border: 5px solid #E57200;" src="{{ place.image.url }}" height="350px" width="100%">
+                {% else %}
+                {% endif %}
+            </div>
+            <div class="col-lg-7">
+                <p style="display: inline; vertical-align:top; padding-left: 25px;"> {{ place.description }}</p>
+            </div>
+        </div>
+
+        <div class="comment_input">
+            <form method="POST">
+                {% csrf_token %}
+                {{ rf.as_p }}
+                <button type="submit" id="type2" onclick="clearField();" class="btn btn-primary btn-lg">Submit Review</button>
+            </form>
+        </div>
+        <hr style="margin-bottom: 0;">
+    </div>
+
+    <div class="container box3">
+        {% if reviews %}
+        {% for review in reviews %}
+        <div class="reviews">
+            <p style="padding-left: 10px; padding-right: 10px;">{{ review.content }}</p>
+            <span class="text=muted" style="color: black; font-size: 12px;"> &nbsp {{ review.author.username }} &nbsp
+            </span>
+            <span class="text=muted" style="color: blue; font-size: 10px;"> {{ review.created_on }} </span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h1>No reviews yet.</h1>
+        {% endif %}
+
+    </div>
+</div>
+<p>&emsp;</p>
+<p>&emsp;</p>
+<script>
+    function goTo() {
+        var name = "{{ name }}"
+        name = name.replaceAll(' ', '+');
+
+        location = "/map/" + name;
+    }
+</script>
+<script>
+    let autocomplete;
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete'),
+            {
+                types: ['establishment'],
+                componenetRestrictions: { 'country': ['AU'] },
+                fields: ['place_id', 'geometry', 'name']
+            });
+        autocomplete.addListener('place_changed', onStartChanged);
+        initAutocomplete2();
+    }
+
+    let autocomplete2;
+    function initAutocomplete2() {
+        autocomplete2 = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete2'),
+            {
+                types: ['establishment'],
+                componenetRestrictions: { 'country': ['AU'] },
+                fields: ['place_id', 'geometry', 'name']
+            });
+        autocomplete2.addListener('place_changed', onEndChanged);
+    }
+
+    function onStartChanged() {
+
+        var newStart = autocomplete.getPlace();
+        var startName;
+        var endName = "{{ name }}";
+
+        if (!newStart.geometry) {
+        }
+        else {
+            endName = endName.replaceAll(' ', '+');
+            endName = endName.replaceAll('&', 'and');
+            endName = endName.replaceAll("'", "");
+            startName = newStart.name.replaceAll(' ', '+');
+            startName = startName.replaceAll('&', 'and');
+            startName = startName.replaceAll("'", "");
+            location = "/map/" + startName + "/" + endName;
+        }
+    }
+    function onEndChanged() {
+        var newEnd = autocomplete2.getPlace();
+        var endName;
+        var startName = "{{ name }}";
+        if (!newEnd.geometry) {
+        }
+        else {
+            endName = newEnd.name.replaceAll(' ', '+');
+            endName = endName.replaceAll('&', 'and');
+            endName = endName.replaceAll("'", "");
+            startName = startName.replaceAll(' ', '+');
+            startName = startName.replaceAll('&', 'and');
+            startName = startName.replaceAll("'", "");
+            location = "/map/" + startName + "/" + endName;
+        }
+    }
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdaz10ER7OvsL15_iMY2hozh7-KEsukb4&libraries=places&callback=initAutocomplete"
+    async defer>
+    </script>
+{% endblock %}

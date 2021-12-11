@@ -1,0 +1,106 @@
+{% extends 'uvaguide/base.html' %}
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'uvaguide/css/custom-style.css' %}">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+<p>&emsp;</p>
+<p>&emsp;</p>
+
+<div class="container box2">
+    <div class="container user_title">
+        <h1 style="color:black; font-family: 'Courier New', monospace; font-size: 90px;"> 
+        {{ friend.username }}
+        </h1>
+    </div>
+    <hr style="margin-top: -20px; background-color: black; color: black;">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- PROFILE PIC -->
+            <div class="row">
+                <div class="col" style="padding-left: 50px; ">
+                    {% if friend.pfp.name != '' %}
+                    {% if friend.pfp.name != 'False' %}
+                    <img src="{{ friend.pfp.url }}" alt="{{ friend.username }}'s picture" height="350px" width="350px" style="border: 2px solid black;">
+                    {% else %}
+                    <p>{{friend.username}} has not added a profile image!</p>
+                    {% endif %}
+                    {% else %}
+                    <p>{{friend.username}} has not added a profile image!</p>
+                    {% endif %}
+                </div>
+                <!-- BIO  -->
+                <div class="col profile_bio" style="padding-left: 20px; ">
+                    <p style="font-size: 40px; display: inline;color:#E57200; font-family: 'Courier New', monospace;">Bio:</p>
+                    {% if friend.bio == '' %}
+                    <p>{{friend.username}} has not added a profile bio!</p>
+                    {% else %}
+                    <p style="font-size: 25px; display: inline;color:black; font-family: 'Courier New', monospace;">{{ friend.bio }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- FRIENDS -->
+            <div class="col-md-6 accepted_friends" style="padding-top: 5vh;">
+                <h3 style="font-size: 40px; text-align: left; color:black; font-family: 'Courier New', monospace; padding-left: 20px;"><b>Friends:</b></h3>  
+                <ul id='friend'>
+                    {% for person in friends %} 
+                    <li>
+                        <p style="display: inline; color: #E57200; font-size: larger;"> {{ person.username }} </p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- RECENT ACTIVITIES -->
+        <div class="col-md-4">
+            <div class="recent_activities_card">
+                <div class="recent_activities_title">
+                    <h1 style="font-weight: bold; font-family: 'Courier New', Courier, monospacelll; color: black;">Recent Activity</h1>
+                </div>
+                {% if friend.reviews.all or friend.likes.all %}
+                <ul id="activity">
+                    {% for review in friend.reviews.all %}
+                    <li>
+                        <hr>
+                        <div class="activity">
+                            <i class="material-icons" style="font-size: 40px; padding-right: 10px;">comment</i>
+                            <small><span style="color: #E57200;">{{review.place.name}}</span>: "{{review.content}}"</small>
+                            <span id="view_activity" class="text=muted" style="color: #E57200; font-size: 10px;">
+                                <a href="{% url 'maps:detail' review.place.id %}">View</a>
+                            </span>
+                        </div>
+                        <hr>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <ul id="activity">
+                    {% for like in friend.likes.all %}
+                    <li>
+                        <hr>
+                        <div class="activity">
+                            <i class="material-icons" style="font-size: 40px; padding-right: 10px;">thumb_up</i>
+                            <small>liked <span style="color: #E57200;">{{like.name}}</span></small>
+                            <span id="view_activity" class="text=muted" style="color: #E57200; font-size: 10px;">
+                                <a href="{% url 'maps:detail' like.id %}">View</a>
+                            </span>
+                        </div>
+                        <hr>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <h3>No Recent Activity!</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<i class="material-icons" style="font-size: 40px;">comment</i>
+<p>&emsp;</p>
+<p>&emsp;</p>
+{% endblock %}
